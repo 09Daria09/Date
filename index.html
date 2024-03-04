@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ExtendedDate Demo</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .button {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #a7c5eb;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #849eb1;
+        }
+
+        #output,
+        #dateInput {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+        }
+
+        label {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <label for="dateInput">Выберите дату:</label>
+    <input type="date" id="dateInput" onchange="updateDate()" />
+
+    <button class="button" onclick="showDateText()">Показать дату текстом</button>
+    <button class="button" onclick="showDateStatus()">Проверить статус даты</button>
+    <button class="button" onclick="checkLeapYear()">Проверить високосный год</button>
+    <button class="button" onclick="showNextDate()">Показать следующую дату</button>
+
+    <div id="output">Результаты будут здесь</div>
+
+    <script>
+        class ExtendedDate extends Date {
+            constructor(...args) {// '...args' собирает все переданные аргументы в массив 'args'.
+                super(...args); // Для поддержания той же гибкости при создании даты, что и у 'Date'
+            }
+
+
+            getDateText() {
+                const months = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+                return `${this.getDate()} ${months[this.getMonth()]} ${this.getFullYear()} год`;
+            }
+
+
+            checkDateStatus() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (this > today) {
+                    return "Дата в будущем";
+                } else if (this.toDateString() === today.toDateString()) {
+                    return "Сегодня";
+                } else {
+                    return "Дата в прошлом";
+                }
+            }
+
+            isLeapYear() {
+                const year = this.getFullYear();
+                return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+            }
+
+            getNextDate() {
+                const nextDay = new ExtendedDate(this);
+                nextDay.setDate(this.getDate() + 1);
+                return nextDay.getDateText();
+            }
+        }
+        let extendedDate = new ExtendedDate();
+
+        function updateDate() {
+            const dateValue = document.getElementById('dateInput').value;
+            if (dateValue) {
+                const [year, month, day] = dateValue.split('-').map(num => parseInt(num, 10));
+                extendedDate = new ExtendedDate(year, month - 1, day);
+                document.getElementById('output').innerText = "Выбрана новая дата.";
+            }
+        }
+
+        function showDateText() {
+            document.getElementById('output').innerText = extendedDate.getDateText();
+        }
+
+        function showDateStatus() {
+            document.getElementById('output').innerText = extendedDate.checkDateStatus();
+        }
+
+        function checkLeapYear() {
+            document.getElementById('output').innerText = extendedDate.isLeapYear() ? "Високосный год" : "Не високосный год";
+        }
+
+        function showNextDate() {
+            document.getElementById('output').innerText = `Следующая дата: ${extendedDate.getNextDate()}`;
+        }
+
+    </script>
+
+</body>
+
+</html>
